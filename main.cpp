@@ -1,6 +1,8 @@
 //making core sdl functionality
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_video.h>
+#include <SDL_render.h>
 #include <iostream>
 
 //setting up the screen dimensions
@@ -10,10 +12,10 @@ const int SCREEN_HEIGHT = 600;
 int main(int argc, char* argv[]) {
   //initializing SDL video system
   if(SDL_Init(SDL_INIT_VIDEO) <  0) {
-    std::cerr << "SDL couldn't initialize" << SDL_Geterror() << "\n"; //outputting if there is an error
+    std::cerr << "SDL couldn't initialize" << SDL_GetError() << "\n"; //outputting if there is an error
     return 1;
   }
-}
+
 
 
 //create a window in the center of the screen
@@ -52,7 +54,7 @@ if(!surface) {
 
 //creating the texture for the surface
 SDL_Texture* playerTex = SDL_CreateTextureFromSurface(renderer, surface);
-SDL_Freesurface(surface);   //surface no longer needed after texture is made
+SDL_FreeSurface(surface);   //surface no longer needed after texture is made
 
 
 //game loop control variable
@@ -62,4 +64,40 @@ bool isRunning = true;
 SDL_Event event;
 
 //PLayer's position on the screen
-float playerX = 400, player y = 500;
+float playerX = 400, playerY = 500;
+
+
+//setting up main game loop now
+while (isRunning) {
+  //poll for any events like clsoing the window or key presses
+  while(SDL_PollEvent(&event)) {
+    if (event.type == SDL_QUIT) {
+        isRunning = false; //exit game
+    }
+  }
+
+  //set the bg color to black
+  SDL_SetRenderDrawColor(renderer, 0 , 0 , 0 , 255);
+  SDL_RenderClear(renderer); //clear the screen with said color
+
+  //drawing the player texture 
+  SDL_Rect dst = {static_cast<int>(playerX), static_cast<int>(playerY),64,64};
+  SDL_RenderCopy(renderer, playerTex,nullptr, &dst);
+
+  //showing everything we drew
+  SDL_RenderPresent(renderer);
+
+  //delay to make framerate (60 fps)
+  SDL_Delay(16);
+}
+
+//clean up all sdl resources to save computing power
+SDL_DestroyTexture(playerTex);
+SDL_DestroyRenderer(renderer);
+SDL_DestroyWindow(window);
+IMG_Quit();
+SDL_Quit();
+
+return 0; //exit program
+
+}
