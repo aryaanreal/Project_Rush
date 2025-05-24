@@ -12,4 +12,4 @@ public:
      void move();    //handles player movement (typically via keyboard input)
      void draw(SDL_Renderer* renderer);  //draws the player sprite to the screen using the renderer
     
-}
+};
