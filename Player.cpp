@@ -1,7 +1,7 @@
 #include "Player.h"
 
 //constructor sets initial position, speed, and texture
-Player::Player(float startX, float startY, SDL_Tecture* tex)
+Player::Player(float startX, float startY, SDL_Texture* tex)
     :x(startX), y(startY), speed(5.0f), texture(tex) {}
 // handles players movement (to be done later)
 void Player::move() {
