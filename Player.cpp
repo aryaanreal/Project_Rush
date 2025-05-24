@@ -2,7 +2,7 @@
 
 //constructor sets initial position, speed, and texture
 Player::Player(float startX, float startY, SDL_Texture* tex)
-    :x(startX), y(startY), speed(5.0f), texture(tex) {}
+    : Entity(startX, startY, 5.0f), texture(tex) {}     //using base class constructor
 // handles players movement (to be done later)
 void Player::move() {
     //add keyboard logic later
