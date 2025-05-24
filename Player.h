@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include "Entity.h"
 
 // defines the Player class, which handles position, movement, and rendering
 class Player {
