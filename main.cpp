@@ -5,6 +5,9 @@
 #include <SDL_render.h>
 #include <iostream>
 #include "Player.h"
+#include "Bullet.h"
+#include <vector>
+#include <memory>
 
 //setting up the screen dimensions
 const int SCREEN_WIDTH = 800;
@@ -58,6 +61,18 @@ SDL_Texture* playerTex = SDL_CreateTextureFromSurface(renderer, surface);
 SDL_FreeSurface(surface);   //surface no longer needed after texture is made
 
 
+//load bullet sprite
+SDL_Surface* bulletSurface = IMG_Load("assets/bullet.png");
+if(!bulletSurface) {
+  std::cerr << "Failed to load bullet image: " << IMG_GetError() << "\n";
+  return 1;
+}
+
+//creating the bullet surface
+SDL_Texture* bulletTex = SDL_CreateTextureFromSurface(renderer, bulletSurface);
+SDL_FreeSurface(bulletSurface);
+
+
 //game loop control variable
 bool isRunning = true;
 
@@ -68,20 +83,41 @@ SDL_Event event;
 
 Player player(400, 500, playerTex);     //using the player start position func inherited from entity
 
+Bullet bullets[100];  //initial 100 bullets
+int bulletcount = 0;
+
 
 //setting up main game loop now
 while (isRunning) {
   //poll for any events like clsoing the window or key presses
-  while(SDL_PollEvent(&event)) {
-    if (event.type == SDL_QUIT) {
-        isRunning = false; //exit game
+ 
+    while(SDL_PollEvent(&event)) {
+      if (event.type == SDL_QUIT) {
+          isRunning = false;
+      }
+
+      if (event.type == SDL_KEYDOWN) {
+        std::cout << "Key pressed: " << SDL_GetKeyName(event.key.keysym.sym) << std::endl;
+        //bullet fire logic
+        if (event.key.keysym.sym == SDLK_SPACE) {
+          if (bulletcount < 100){
+            bullets[bulletcount++] = Bullet(player.x + 24.0f, player.y, bulletTex);
+            std::cout << "Bullet fired! Count: " << bulletcount << std::endl;
+          }
+        }
+      }
     }
-  }
 
   //getting keystate and pass to the player's input
   const Uint8* keystate = SDL_GetKeyboardState(NULL);
   player.handleInput(keystate);
 
+  //update bulletss
+  for (int i = 0; i < bulletcount; i++){
+    if(bullets[i].active) {
+      bullets[i].move();
+    }
+  }
 
   //set the bg color to black
   SDL_SetRenderDrawColor(renderer, 0 , 0 , 0 , 255);
@@ -90,6 +126,12 @@ while (isRunning) {
   //drawing the player texture 
   player.draw(renderer);
 
+  //drawing bullets
+  for (int i = 0; i < bulletcount; i ++){
+    if (bullets[i].active) {
+      bullets[i].draw(renderer);
+    }
+  }
 
   //showing everything we drew
   SDL_RenderPresent(renderer);
@@ -101,6 +143,7 @@ while (isRunning) {
 }
 
 //clean up all sdl resources to save computing power
+SDL_DestroyTexture(bulletTex);
 SDL_DestroyTexture(playerTex);
 SDL_DestroyRenderer(renderer);
 SDL_DestroyWindow(window);
