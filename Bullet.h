@@ -3,8 +3,11 @@
 
 //Bullet class inherits from Entity
 class Bullet: public Entity {
-    SDL_Texture*texture; //This is the image used to draw the bullet
+    
 public:
+    SDL_Texture*texture; //This is the image used to draw the bullet
+    bool active = false; //is this bullet on screen?
+
     Bullet();
     //Consturctor:sets the bullet's position,speed, and texture
     Bullet(float x, float y,  SDL_Texture*tex, float speed = 10.0f);
@@ -15,5 +18,5 @@ public:
     //Draws the bullet on the screen
     void draw(SDL_Renderer*renderer) override;
 
-    bool active = false;    //used to track if this bullet needs to be updated
+    
 };

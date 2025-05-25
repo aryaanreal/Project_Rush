@@ -5,7 +5,7 @@ Bullet::Bullet()
 
 //Constructor: sets the position, speed, and texture by calling the Entity constructor
 Bullet::Bullet(float x, float y, SDL_Texture*tex, float speed)
-     :Entity(x,y, speed), texture (tex) {}
+     :Entity(x,y, speed), texture (tex), active(true) {}
 
 //moves the bullet upward by decreasing its y position
 void Bullet::move(){
@@ -15,9 +15,9 @@ void Bullet::move(){
 
 //draws the bullet upward by decreasing its y position
 void Bullet::draw(SDL_Renderer* renderer) {
-    // create a rectangle where the bullet will be drawn
-    SDL_Rect dst = { static_cast<int>(x), static_cast<int>(y), 16, 32 };
+    //create a bullet using the given sprite
+    SDL_Rect dst = { static_cast<int>(x), static_cast<int>(y), 8, 20 };  //adjust size to image
 
-    // render the texture onto the screen at the given rectangle
+    
     SDL_RenderCopy(renderer, texture, nullptr, &dst);
 }
