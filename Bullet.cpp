@@ -1,5 +1,8 @@
 #include "Bullet.h" //include the header file for the Bullet class
 
+Bullet::Bullet()
+    : Entity(0,0,0), texture(nullptr), active(false) {}     //adding a default constructor so the compiler knows how to make a bullet
+
 //Constructor: sets the position, speed, and texture by calling the Entity constructor
 Bullet::Bullet(float x, float y, SDL_Texture*tex, float speed)
      :Entity(x,y, speed), texture (tex) {}
