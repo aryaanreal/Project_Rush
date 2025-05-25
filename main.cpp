@@ -86,6 +86,10 @@ Player player(400, 500, playerTex);     //using the player start position func i
 Bullet bullets[100];  //initial 100 bullets
 int bulletcount = 0;
 
+//adding cooldown on shooting
+Uint32 lastBulletTime = 0; //when was the last bullet fired
+const Uint32 bulletCoolDown = 200; //cooldown time in ms
+
 
 //setting up main game loop now
 while (isRunning) {
@@ -100,13 +104,18 @@ while (isRunning) {
         std::cout << "Key pressed: " << SDL_GetKeyName(event.key.keysym.sym) << std::endl;
         //bullet fire logic
         if (event.key.keysym.sym == SDLK_SPACE) {
-          if (bulletcount < 100){
+          Uint32 currentTime = SDL_GetTicks();  //cooldown get current time
+
+          if(currentTime - lastBulletTime >= bulletCoolDown) {
+            if (bulletcount < 100){
             bullets[bulletcount++] = Bullet(player.x + 24.0f, player.y, bulletTex);
             std::cout << "Bullet fired! Count: " << bulletcount << std::endl;
+            lastBulletTime = currentTime; //update fire time
           }
         }
       }
     }
+  }
 
   //getting keystate and pass to the player's input
   const Uint8* keystate = SDL_GetKeyboardState(NULL);
