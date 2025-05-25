@@ -8,6 +8,7 @@ class Entity {
   public:
       float x, y;   //position on screen
       float speed;  //movement speed
+      bool active = true;
 
       //constructor that initializes position and speed
       Entity(float x, float y, float speed);
