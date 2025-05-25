@@ -73,6 +73,16 @@ if(!bulletSurface) {
 SDL_Texture* bulletTex = SDL_CreateTextureFromSurface(renderer, bulletSurface);
 SDL_FreeSurface(bulletSurface);
 
+//loading background
+SDL_Surface* bgSurface = IMG_Load("assets/background.png");
+if (!bgSurface) {
+  std::cerr << "Failed to load bg: " << IMG_GetError() << "\n";
+  return 1;
+}
+
+SDL_Texture* backgroundTex = SDL_CreateTextureFromSurface(renderer, bgSurface);
+SDL_FreeSurface(bgSurface);
+
 
 //game loop control variable
 bool isRunning = true;
@@ -111,9 +121,8 @@ while (isRunning) {
 
   bulletManager.update();   //updates bullet manager
 
-  //set the bg color to black
-  SDL_SetRenderDrawColor(renderer, 0 , 0 , 0 , 255);
-  SDL_RenderClear(renderer); //clear the screen with said color
+  //drawing bg image
+  SDL_RenderCopy(renderer, backgroundTex, nullptr, nullptr);
 
   //drawing the player texture 
   player.draw(renderer);
