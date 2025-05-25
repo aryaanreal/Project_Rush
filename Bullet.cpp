@@ -1,12 +1,13 @@
 #include "Bullet.h" //include the header file for the Bullet class
 
 //Constructor: sets the position, speed, and texture by calling the Entity constructor
-Bullet::Bullet(float x, float y, float speed, SDL_Texture*tex)
+Bullet::Bullet(float x, float y, SDL_Texture*tex, float speed)
      :Entity(x,y, speed), texture (tex) {}
 
 //moves the bullet upward by decreasing its y position
 void Bullet::move(){
     y-= speed;
+    if (y < -32) active = false; //cheeck if the bullet is outside the play area
 }
 
 //draws the bullet upward by decreasing its y position
