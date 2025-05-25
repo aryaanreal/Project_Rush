@@ -6,7 +6,7 @@ class Bullet: public Entity {
     SDL_Texture*texture; //This is the image used to draw the bullet
 public:
     //Consturctor:sets the bullet's position,speed, and texture
-    Bullet(float x, float y, float speed, SDL_Texture*tex);
+    Bullet(float x, float y, float speed = 10.0f, SDL_Texture*tex);
 
     //moves the bullet(e.g:uward or downward)
     void move() override;
