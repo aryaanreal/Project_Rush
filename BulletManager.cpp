@@ -8,7 +8,7 @@ void BulletManager::tryFire(float x, float y, SDL_Texture* bulletTex) {
 
   if (currentTime - lastBulletTime >= bulletCooldown && bulletsInMag > 0) {
     if (bulletCount < MAX_BULLETS){
-      bullets[bulletCount++] = Bullet(x + 24.0f, y, bulletTex);
+      bullets[bulletCount++] = Bullet(x + 72.0f/2.0f - 8, y, bulletTex);
       if(bulletCount >= MAX_BULLETS) {
         bulletCount = 0; //loop back to 100
       }
