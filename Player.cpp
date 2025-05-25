@@ -30,7 +30,7 @@ void Player::handleInput(const Uint8* keystate) {
     if (x < 0) x = 0;
     if (x > 800 - 64) x = 800-64;    //the player will be 64 bit in x
     if (y < 0) y = 0;
-    if (y > 500 - 64) y = 500-64;     //the player will be 64 bit in y too
+    if (y > 575 - 64) y = 575-64;     //the player will be 64 bit in y too
 }
 
 void Player::move() {
@@ -38,6 +38,6 @@ void Player::move() {
 }
 //draws the player sprite to the screen
 void Player::draw(SDL_Renderer*renderer){
-    SDL_Rect dst = { (int)x, (int)y, 64, 64}; //set position and size
+    SDL_Rect dst = { (int)x, (int)y, 64,64}; //set position and size
     SDL_RenderCopy(renderer, texture, nullptr, &dst); //render the texture
 }
