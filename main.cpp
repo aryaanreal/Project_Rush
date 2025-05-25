@@ -145,7 +145,7 @@ while (isRunning) {
 
   //writting on the bottom left
 
-SDL_Color white = {255, 255, 255};    //setting the text color white
+  SDL_Color white = {255, 255, 255};    //setting the text color white
 
   SDL_Surface* labelSurface = TTF_RenderText_Blended(font, "Bullets", white);     //it wwill say bullet on top
   SDL_Texture* labelTex = SDL_CreateTextureFromSurface(renderer, labelSurface);
