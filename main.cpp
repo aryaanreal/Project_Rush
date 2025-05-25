@@ -6,6 +6,7 @@
 #include <iostream>
 #include "Player.h"
 #include "Bullet.h"
+#include "BulletManager.h"
 #include <vector>
 #include <memory>
 
@@ -82,13 +83,9 @@ SDL_Event event;
 //PLayer's position on the screen
 
 Player player(400, 500, playerTex);     //using the player start position func inherited from entity
+BulletManager bulletManager;  //calling bullet manager
 
-Bullet bullets[100];  //initial 100 bullets
-int bulletcount = 0;
 
-//adding cooldown on shooting
-Uint32 lastBulletTime = 0; //when was the last bullet fired
-const Uint32 bulletCoolDown = 200; //cooldown time in ms
 
 
 //setting up main game loop now
@@ -99,34 +96,20 @@ while (isRunning) {
       if (event.type == SDL_QUIT) {
           isRunning = false;
       }
-
-      if (event.type == SDL_KEYDOWN) {
-        std::cout << "Key pressed: " << SDL_GetKeyName(event.key.keysym.sym) << std::endl;
-        //bullet fire logic
-        if (event.key.keysym.sym == SDLK_SPACE) {
-          Uint32 currentTime = SDL_GetTicks();  //cooldown get current time
-
-          if(currentTime - lastBulletTime >= bulletCoolDown) {
-            if (bulletcount < 100){
-            bullets[bulletcount++] = Bullet(player.x + 24.0f, player.y, bulletTex);
-            std::cout << "Bullet fired! Count: " << bulletcount << std::endl;
-            lastBulletTime = currentTime; //update fire time
-          }
-        }
-      }
+    
+    if (event.type == SDL_KEYDOWN) {
+    if (event.key.keysym.sym == SDLK_SPACE) {
+    bulletManager.tryFire(player.x, player.y, bulletTex);
     }
+  }
+
   }
 
   //getting keystate and pass to the player's input
   const Uint8* keystate = SDL_GetKeyboardState(NULL);
   player.handleInput(keystate);
 
-  //update bulletss
-  for (int i = 0; i < bulletcount; i++){
-    if(bullets[i].active) {
-      bullets[i].move();
-    }
-  }
+  bulletManager.update();   //updates bullet manager
 
   //set the bg color to black
   SDL_SetRenderDrawColor(renderer, 0 , 0 , 0 , 255);
@@ -136,11 +119,7 @@ while (isRunning) {
   player.draw(renderer);
 
   //drawing bullets
-  for (int i = 0; i < bulletcount; i ++){
-    if (bullets[i].active) {
-      bullets[i].draw(renderer);
-    }
-  }
+  bulletManager.draw(renderer);
 
   //showing everything we drew
   SDL_RenderPresent(renderer);
