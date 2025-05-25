@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 #include <SDL_video.h>
 #include <SDL_render.h>
+#include <SDL_ttf.h>
 #include <iostream>
 #include "Player.h"
 #include "Bullet.h"
@@ -21,7 +22,18 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+//initializing sdl_ttf
+if(TTF_Init() < 0) {
+  std::cerr << "Failed to initialize SDL_TTF" << SDL_GetError << "\n";
+  return 1;
+}
 
+//load fonts
+TTF_Font* font = TTF_OpenFont("assets/EOG.ttf", 24);
+if(!font) {
+  std::cerr << "Failed to load font: " << TTF_GetError() << "\n";
+  return 1;
+}
 
 //create a window in the center of the screen
 
@@ -129,6 +141,28 @@ while (isRunning) {
 
   //drawing bullets
   bulletManager.draw(renderer);
+
+
+  //writting on the bottom left
+
+SDL_Color white = {255, 255, 255};    //setting the text color white
+
+  SDL_Surface* labelSurface = TTF_RenderText_Blended(font, "Bullets", white);     //it wwill say bullet on top
+  SDL_Texture* labelTex = SDL_CreateTextureFromSurface(renderer, labelSurface);
+  SDL_Rect labelRect = {10, SCREEN_HEIGHT - 50, labelSurface->w,labelSurface->h};   //the position
+  SDL_RenderCopy(renderer, labelTex, nullptr, &labelRect);
+  SDL_FreeSurface(labelSurface);
+  SDL_DestroyTexture(labelTex);
+
+  std::string bulletStatus = bulletManager.reloading ? "Reloading" : std::to_string(bulletManager.bulletsInMag);    //it will check if bulletmanager says reloading if it does
+  SDL_Surface* statusSurface = TTF_RenderText_Blended(font, bulletStatus.c_str(), white);                           // it will show reloading
+  SDL_Texture* statusTex = SDL_CreateTextureFromSurface(renderer, statusSurface);
+  SDL_Rect statusRect = {10, SCREEN_HEIGHT - 25, labelSurface->w,labelSurface->h};
+  SDL_RenderCopy(renderer, statusTex, nullptr, &statusRect);
+  SDL_FreeSurface(statusSurface);
+  SDL_DestroyTexture(statusTex);
+
+  
 
   //showing everything we drew
   SDL_RenderPresent(renderer);
