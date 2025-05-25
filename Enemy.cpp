@@ -15,4 +15,11 @@ Enemy::Enemy(float x, float y, float speed, SDL_Texture* tex)
   y += speed;
 
   if (y> 600) active = false;
+
  }
+
+ void Enemy::draw(SDL_Renderer* renderer) {
+    SDL_Rect dst = { static_cast<int>(x), static_cast<int>(y), 84, 84 };
+    SDL_RenderCopy(renderer, texture, nullptr, &dst); 
+  }
+ 
