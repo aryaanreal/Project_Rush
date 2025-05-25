@@ -4,6 +4,7 @@
 #include <SDL_video.h>
 #include <SDL_render.h>
 #include <iostream>
+#include "Player.h"
 
 //setting up the screen dimensions
 const int SCREEN_WIDTH = 800;
@@ -64,7 +65,8 @@ bool isRunning = true;
 SDL_Event event;
 
 //PLayer's position on the screen
-float playerX = 400, playerY = 500;
+
+Player player(400, 500, playerTex);     //using the player start position func inherited from entity
 
 
 //setting up main game loop now
@@ -76,19 +78,26 @@ while (isRunning) {
     }
   }
 
+  //getting keystate and pass to the player's input
+  const Uint8* keystate = SDL_GetKeyboardState(NULL);
+  player.handleInput(keystate);
+
+
   //set the bg color to black
   SDL_SetRenderDrawColor(renderer, 0 , 0 , 0 , 255);
   SDL_RenderClear(renderer); //clear the screen with said color
 
   //drawing the player texture 
-  SDL_Rect dst = {static_cast<int>(playerX), static_cast<int>(playerY),64,64};
-  SDL_RenderCopy(renderer, playerTex,nullptr, &dst);
+  player.draw(renderer);
+
 
   //showing everything we drew
   SDL_RenderPresent(renderer);
 
   //delay to make framerate (60 fps)
   SDL_Delay(16);
+
+
 }
 
 //clean up all sdl resources to save computing power
