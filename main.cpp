@@ -4,10 +4,13 @@
 #include <SDL_video.h>
 #include <SDL_render.h>
 #include <SDL_ttf.h>
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include "Player.h"
 #include "Bullet.h"
 #include "BulletManager.h"
+#include "Enemy.h"
 #include <vector>
 #include <memory>
 
@@ -34,6 +37,10 @@ if(!font) {
   std::cerr << "Failed to load font: " << TTF_GetError() << "\n";
   return 1;
 }
+
+//seed rng for enemy generation
+
+srand(static_cast<unsigned int>(time(nullptr))); 
 
 //create a window in the center of the screen
 
@@ -85,6 +92,16 @@ if(!bulletSurface) {
 SDL_Texture* bulletTex = SDL_CreateTextureFromSurface(renderer, bulletSurface);
 SDL_FreeSurface(bulletSurface);
 
+
+//loading enemy sprites
+SDL_Surface* enemySurface = IMG_Load("assets/enemy.png"); 
+if (!enemySurface) {
+  std::cerr << "Failed to load enemy image: " << IMG_GetError() << "\n";
+  return 1;
+}
+SDL_Texture* enemyTex = SDL_CreateTextureFromSurface(renderer, enemySurface);
+SDL_FreeSurface(enemySurface);
+
 //loading background
 SDL_Surface* bgSurface = IMG_Load("assets/background.png");
 if (!bgSurface) {
@@ -107,6 +124,10 @@ SDL_Event event;
 Player player(400, 500, playerTex);     //using the player start position func inherited from entity
 BulletManager bulletManager;  //calling bullet manager
 
+
+//calling the enemiess
+std::vector<Enemy> enemies;
+Uint32 lastSpawnTime = 0;
 
 
 
@@ -133,6 +154,20 @@ while (isRunning) {
 
   bulletManager.update();   //updates bullet manager
 
+  //making it so new enemies spawn
+  Uint32 currentTime = SDL_GetTicks();
+  if (currentTime - lastSpawnTime > 1000) {
+    float xPos = rand() % (SCREEN_WIDTH -48);
+    enemies.emplace_back(xPos, -48, 2.0f, enemyTex);
+    lastSpawnTime = currentTime;
+  }
+
+  //move enemies
+  for (auto& enemy: enemies) {
+    if(enemy.active) enemy.move(); 
+  }
+
+
   //drawing bg image
   SDL_RenderCopy(renderer, backgroundTex, nullptr, nullptr);
 
@@ -141,6 +176,11 @@ while (isRunning) {
 
   //drawing bullets
   bulletManager.draw(renderer);
+
+  //drawing enemies
+  for(auto& enemy : enemies) {
+    if(enemy.active) enemy.draw(renderer);
+  }
 
 
   //writting on the bottom left
@@ -177,6 +217,9 @@ while (isRunning) {
 SDL_DestroyTexture(bulletTex);
 SDL_DestroyTexture(playerTex);
 SDL_DestroyRenderer(renderer);
+SDL_DestroyTexture(enemyTex);
+TTF_CloseFont(font);
+TTF_Quit();
 SDL_DestroyWindow(window);
 IMG_Quit();
 SDL_Quit();
