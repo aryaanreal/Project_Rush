@@ -17,6 +17,10 @@ public:
     void drawText(const std::string& text, int x, int y);
     enum class MenuOption { Start, Quit };
     void drawStartMenu(MenuOption selected);
+    enum class PauseOption { Continue, Quit };
+    void drawPauseMenu(PauseOption selected);
+    void drawGameOverScreen(MenuOption selected);
+
 
     
 };

@@ -49,3 +49,38 @@ void UIManager::drawStartMenu(MenuOption selected) {
     color = original;
     SDL_RenderPresent(renderer);
 }
+
+//adding a pause menu
+void UIManager::drawPauseMenu(PauseOption selected) {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200); // semi-transparent black
+  SDL_Rect overlay = {200, 180, 400, 240};
+  SDL_RenderFillRect(renderer, &overlay);
+
+  SDL_Color original = color;
+  color = (selected == PauseOption::Continue ? SDL_Color{255, 255, 0} : original);
+  drawText("Continue", 320, 220);
+
+  color = (selected == PauseOption::Quit ? SDL_Color{255, 255, 0} : original);
+  drawText("Quit", 340, 280);
+
+  color = original;
+  SDL_RenderPresent(renderer);
+}
+
+//game over screen
+void UIManager::drawGameOverScreen(MenuOption selected) {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+
+  drawText("GAME OVER", 280, 150);
+
+  SDL_Color original = color;
+  color = (selected == MenuOption::Start ? SDL_Color{255, 255, 0} : original);
+  drawText("Restart", 330, 240);
+
+  color = (selected == MenuOption::Quit ? SDL_Color{255, 255, 0} : original);
+  drawText("Quit", 340, 290);
+
+  color = original;
+  SDL_RenderPresent(renderer);
+}

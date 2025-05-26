@@ -224,26 +224,71 @@ LevelGenerator levelGen;
 while (isRunning) {
   //poll for any events like clsoing the window or key presses
  
+while (isRunning) {
   while (SDL_PollEvent(&event)) {
-    if (event.type == SDL_QUIT) isRunning = false;
-    else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
-        bulletManager.tryFire(player.x, player.y, bulletTex);
-        audio.playFire();
+      if (event.type == SDL_QUIT) isRunning = false;
+      else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
+          bulletManager.tryFire(player.x, player.y, IMG_LoadTexture(renderer, "assets/bullet.png"));
+          audio.playFire();
+      } else if (event.key.keysym.sym == SDLK_ESCAPE) {
+          UIManager::PauseOption pauseSelected = UIManager::PauseOption::Continue;
+          bool paused = true;
+
+          //addedd logic for pausing the game
+          while (paused) {
+              while (SDL_PollEvent(&event)) {
+                  if (event.type == SDL_QUIT) return 0;
+                  if (event.type == SDL_KEYDOWN) {
+                    if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
+                          pauseSelected = (pauseSelected == UIManager::PauseOption::Continue) ? UIManager::PauseOption::Quit : UIManager::PauseOption::Continue;
+                      if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
+                          pauseSelected = (pauseSelected == UIManager::PauseOption::Quit) ? UIManager::PauseOption::Continue : UIManager::PauseOption::Quit;
+
+                      if (event.key.keysym.sym == SDLK_RETURN) {
+                          if (pauseSelected == UIManager::PauseOption::Continue)
+                              paused = false;
+                          else
+                              return 0;
+                      }
+                  }
+              }
+
+              ui.drawPauseMenu(pauseSelected);
+              SDL_Delay(16);
+            }
         }
     }
-
-
   //getting keystate and pass to the player's input
   const Uint8* keystate = SDL_GetKeyboardState(NULL);
   player.handleInput(keystate);
 
-
-  //check for player health
+  //adding a gameover screen
   if (player.health <= 0) {
-    std::cout << "Game Over!\n";
-    isRunning = false;
-    continue;
+  UIManager::MenuOption gameOverSelected = UIManager::MenuOption::Start;
+  bool gameOver = true;
+  while (gameOver) {
+    while (SDL_PollEvent(&event)) {
+      if (event.type == SDL_QUIT) return 0;
+      if (event.type == SDL_KEYDOWN) {
+        if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
+          gameOverSelected = (gameOverSelected == UIManager::MenuOption::Start) ? UIManager::MenuOption::Quit : UIManager::MenuOption::Start;
+        if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
+          gameOverSelected = (gameOverSelected == UIManager::MenuOption::Quit) ? UIManager::MenuOption::Start : UIManager::MenuOption::Quit;
+        if (event.key.keysym.sym == SDLK_RETURN) {
+          if (gameOverSelected == UIManager::MenuOption::Start)
+            gameOver = false;
+          else
+            return 0;
+        }
+      }
+    }
+    ui.drawGameOverScreen(gameOverSelected);
+    SDL_Delay(16);
   }
+  break;
+}
+
+
 
 
   bulletManager.update();   //updates bullet manager
@@ -348,4 +393,5 @@ SDL_Quit();
 
 return 0; //exit program
 
+  }
 }
