@@ -9,4 +9,5 @@ public:
     //constructor calls base bullet constructor with speed and texture
     EnemyBullet(float x, float y, float speed, SDL_Texture* tex, float targetX, float targetY);
     void move() override;
+    void draw(SDL_Renderer* renderer) override;
 };

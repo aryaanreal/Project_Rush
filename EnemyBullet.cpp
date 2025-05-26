@@ -21,3 +21,9 @@ void EnemyBullet::move() {
         active = false;
     }
 }
+
+//control bullet size
+void EnemyBullet::draw(SDL_Renderer* renderer) {
+    SDL_Rect dst = { static_cast<int>(x), static_cast<int>(y), 32, 32 }; 
+    SDL_RenderCopy(renderer, texture, nullptr, &dst);
+}
