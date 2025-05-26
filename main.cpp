@@ -11,6 +11,7 @@
 #include "Bullet.h"
 #include "BulletManager.h"
 #include "Enemy.h"
+#include "AudioManager.h"
 #include <vector>
 #include <memory>
 
@@ -24,6 +25,19 @@ int main(int argc, char* argv[]) {
     std::cerr << "SDL couldn't initialize" << SDL_GetError() << "\n"; //outputting if there is an error
     return 1;
   }
+
+//initializing SDL_mixer
+if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+  std::cerr << "SDL_mixer couldn't be initialized. SDL_mixer error: " << Mix_GetError() << "\n";
+  return 1;
+}
+
+//create and load audio manager
+AudioManager audio;
+if(!audio.load()) {
+  std::cerr << "Failed to load audio" << "\n";
+  return 1;
+}
 
 //initializing sdl_ttf
 if(TTF_Init() < 0) {
@@ -88,6 +102,11 @@ if(!bulletSurface) {
   return 1;
 }
 
+//loading enemy bullet sprites (the same as the player)
+SDL_Surface* bulletSurf = IMG_Load("assets/enemyBullet.png");
+SDL_Texture* enemyBulletTex = SDL_CreateTextureFromSurface(renderer, bulletSurf);
+
+
 //creating the bullet surface
 SDL_Texture* bulletTex = SDL_CreateTextureFromSurface(renderer, bulletSurface);
 SDL_FreeSurface(bulletSurface);
@@ -99,6 +118,12 @@ if (!enemySurface) {
   std::cerr << "Failed to load enemy image: " << IMG_GetError() << "\n";
   return 1;
 }
+
+
+//start background music
+audio.playMusic();
+
+
 SDL_Texture* enemyTex = SDL_CreateTextureFromSurface(renderer, enemySurface);
 SDL_FreeSurface(enemySurface);
 
@@ -144,6 +169,7 @@ while (isRunning) {
     if (event.type == SDL_KEYDOWN) {
     if (event.key.keysym.sym == SDLK_SPACE) {
     bulletManager.tryFire(player.x, player.y, bulletTex);
+    audio.playFire();     //play fire sfx
     }
   }
 
@@ -154,6 +180,9 @@ while (isRunning) {
   player.handleInput(keystate);
 
   bulletManager.update();   //updates bullet manager
+  
+
+
   for (auto& bullet : enemyBullets) {
     if (bullet->active) bullet->move();
 }
@@ -162,7 +191,7 @@ while (isRunning) {
   Uint32 currentTime = SDL_GetTicks();
   if (currentTime - lastSpawnTime > 1000) {
     float xPos = rand() % (SCREEN_WIDTH -48);
-    enemies.emplace_back(xPos, -48, 2.0f, enemyTex);
+    enemies.emplace_back(xPos, -48, 2.0f, enemyTex, enemyBulletTex);
     lastSpawnTime = currentTime;
   }
 
@@ -234,6 +263,7 @@ SDL_DestroyRenderer(renderer);
 SDL_DestroyTexture(enemyTex);
 TTF_CloseFont(font);
 TTF_Quit();
+Mix_CloseAudio();
 SDL_DestroyWindow(window);
 IMG_Quit();
 SDL_Quit();
