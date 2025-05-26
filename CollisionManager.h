@@ -22,6 +22,8 @@ public:
     std::vector<std::unique_ptr<PowerUp>>& powerUps,
     AudioManager& audioManager,
     BulletManager& bulletManager,
-    int& score
+    int& score,
+    PowerUpType& lastCollectedPowerUp,
+    bool& hasActivePowerUp
     );
 };

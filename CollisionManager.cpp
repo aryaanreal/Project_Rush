@@ -15,7 +15,9 @@ void CollisionManager::handleCollisions(
     std::vector<std::unique_ptr<PowerUp>>& powerUps,
     AudioManager& audioManager,
     BulletManager& bulletmanager,
-    int& score
+    int& score,
+    PowerUpType& lastCollectedPowerUp,
+    bool& hasActivePowerUp
 ) {
     //player bullets vs. enemies
     for (auto bulletIt = bullets.begin(); bulletIt != bullets.end(); ) {
@@ -79,8 +81,11 @@ void CollisionManager::handleCollisions(
             player.x, player.y, 64, 64,
             (*puIt)->x, (*puIt)->y, 32, 32
         )) {
+            lastCollectedPowerUp = (*puIt)->getType();
+            hasActivePowerUp = true;
             player.applyUpgrade((*puIt)->getType(), bulletmanager);
             audioManager.playPickup();
+            lastCollectedPowerUp = (*puIt)->getType();
             puIt = powerUps.erase(puIt);
         } else {
             ++puIt;
