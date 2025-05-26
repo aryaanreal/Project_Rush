@@ -1,4 +1,5 @@
 #include "AudioManager.h"
+#include <iostream>
 // initialize all sound pointers to nullptr
 AudioManager::AudioManager()
     : fireSound(nullptr), hitSound(nullptr), pickupSound(nullptr), bgm(nullptr) {}
@@ -15,7 +16,14 @@ bool AudioManager::load() {
     fireSound = Mix_LoadWAV("assets/fire.wav");
     hitSound = Mix_LoadWAV("assets/hit.wav");
     pickupSound = Mix_LoadWAV("assets/pickup.wav");
-    bgm = Mix_LoadMUS("assets/background_music.mp3");
+    bgm = Mix_LoadMUS("assets/background_music.wav");
+
+//debugs to check if any fail to load
+ if (!fireSound) std::cerr << "fire.wav failed to load\n";
+if (!hitSound) std::cerr << "hit.wav failed to load\n";
+if (!pickupSound) std::cerr << "pickup.wav failed to load\n";
+if (!bgm) std::cerr << "background_music.mp3 failed to load\n";
+
 
 
 //return true only if all sounds are succesfull
