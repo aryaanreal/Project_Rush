@@ -6,5 +6,5 @@ class EnemyBullet : public Bullet {
 public:
     //constructor calls base bullet constructor with speed and texture
     EnemyBullet(float x, float y, float speed, SDL_Texture* tex)
-        : Bullet(x, y, speed, tex) {}
+        : Bullet(x, y, tex, speed) {}
 };
