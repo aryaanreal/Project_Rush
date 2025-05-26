@@ -1,17 +1,25 @@
 #pragma once
+
 #include "Entity.h"
 #include <SDL.h>
-
-//this is the enemy class the 'space invaders'
+#include <vector>
+#include <memory>
+#include "Bullet.h"
 
 class Enemy : public Entity {
-  SDL_Texture* texture;
-  float baseX;   //original x to move around
-  float waveOffset;  //phase offset to makee the movement unique
+    SDL_Texture* texture;
+    SDL_Texture* bulletTex;// texture for enemy bullets
+    float baseX;
+    float waveOffset;
+
+     int shootCooldown; //time between shots (in frames)
+     int shootTimer;    //counts up to cooldown
 
 public:
-  Enemy(float x, float y, float speed, SDL_Texture* tex);
-  void move() override;
-  void draw(SDL_Renderer* renderer) override;
+    Enemy(float x, float y, float speed, SDL_Texture* tex, SDL_Texture* bulletTex);
 
+    void move() override;
+    void draw(SDL_Renderer* renderer) override;
+
+    void shoot(std::vector<std::unique_ptr<Entity>>& bullets);
 };
