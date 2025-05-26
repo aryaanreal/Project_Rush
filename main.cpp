@@ -202,7 +202,7 @@ while (isRunning) {
 
   for (auto& enemy : enemies) {
     if (enemy.active) {
-        enemy.shoot(enemyBullets); //enemy fires with cooldown
+        enemy.shoot(enemyBullets, player.x, player.y); //enemy fires with cooldown
     }
 }
 
