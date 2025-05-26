@@ -33,11 +33,19 @@ void UIManager::drawHUD(int bulletsLeft, bool reloading, int health, int score, 
     drawText("Wave: " + std::to_string(wave), 680, 10);   //showing wave number
 }
 
-void UIManager::drawStartScreen() {
+void UIManager::drawStartMenu(MenuOption selected) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    drawText("GALAXY RUSH", 240, 200);
-    drawText("Press ENTER to Play", 290, 300);
-    drawText("Press ESC to Exit", 290, 340);
+
+    drawText("GALAXY RUSH", 240, 150);
+
+    SDL_Color original = color;
+    color = (selected == MenuOption::Start ? SDL_Color{255, 255, 0} : original);
+    drawText("Start", 340, 250);
+
+    color = (selected == MenuOption::Quit ? SDL_Color{255, 255, 0} : original);
+    drawText("Quit", 340, 300);
+
+    color = original;
     SDL_RenderPresent(renderer);
 }

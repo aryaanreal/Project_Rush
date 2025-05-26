@@ -85,7 +85,7 @@ if(!renderer) {
 
 //load uimanager
 UIManager ui(renderer, font);
-ui.drawStartScreen();
+
 
 //initializing SDL_image to load png files from assets
 if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
@@ -166,6 +166,35 @@ bool isRunning = true;
 
 //SDL event variables to track key presses, quitting and stuff
 SDL_Event event;
+
+
+
+//startup scrreen!
+UIManager::MenuOption selected = UIManager::MenuOption::Start;
+
+bool menuRunning = true;
+
+while (menuRunning) {
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) return 0;
+        if (event.type == SDL_KEYDOWN) {
+            if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
+                selected = (selected == UIManager::MenuOption::Start) ? UIManager::MenuOption::Quit : UIManager::MenuOption::Start;
+            if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
+                selected = (selected == UIManager::MenuOption::Quit) ? UIManager::MenuOption::Start : UIManager::MenuOption::Quit;
+
+            if (event.key.keysym.sym == SDLK_RETURN) {
+                if (selected == UIManager::MenuOption::Start)
+                    menuRunning = false;
+                  else
+                      return 0;
+            }
+        }
+    }
+
+        ui.drawStartMenu(selected);
+        SDL_Delay(16);
+}
 
 //PLayer's position on the screen
 

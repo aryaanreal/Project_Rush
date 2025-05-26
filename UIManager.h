@@ -13,6 +13,10 @@ class UIManager {
 public:
     UIManager(SDL_Renderer* renderer, TTF_Font* font);
     void drawHUD(int bulletsLeft, bool reloading, int health, int score, PowerUpType currentPowerUp, int wave, bool hasPowerUp);
-    void drawStartScreen();
+    
     void drawText(const std::string& text, int x, int y);
+    enum class MenuOption { Start, Quit };
+    void drawStartMenu(MenuOption selected);
+
+    
 };
