@@ -19,6 +19,7 @@
 #include "LevelGenerator.h"
 #include "PowerUp.h"
 #include "CollisionManager.h"
+#include "UIManager.h"
 
 //setting up the screen dimensions
 const int SCREEN_WIDTH = 800;
@@ -81,6 +82,10 @@ if(!renderer) {
   std::cerr << "renderer dould not be created" << SDL_GetError() << "\n";
   return 1;
 }
+
+//load uimanager
+UIManager ui(renderer, font);
+ui.drawStartScreen();
 
 //initializing SDL_image to load png files from assets
 if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
@@ -178,6 +183,10 @@ std::vector<std::unique_ptr<PowerUp>> powerUps;
 //Uint32 lastSpawnTime = 0; commented cuz already declared
 Uint32 lastPowerUpTime = 0;
 
+//keeping track of the last powerup
+PowerUpType lastCollectedPowerUp = PowerUpType::SpeedBoost;
+bool hasActivePowerup = false;    //adding new check to see if it actually has a powerup or nah
+
 //keeeeping track of scooree
 int score = 0;
 LevelGenerator levelGen;
@@ -253,7 +262,8 @@ if (levelGen.update()) {
   for (auto& pu : powerUps) if (pu -> active) pu->move();       //basically makes the enemy move if it spawns on a powerup
 
   //handling collisions
-  CollisionManager::handleCollisions(player, enemies, bulletManager.bullets, enemyBullets,  powerUps, audio, bulletManager, score);
+  CollisionManager::handleCollisions(player, enemies, bulletManager.bullets, enemyBullets,  powerUps, audio, bulletManager, score, lastCollectedPowerUp, hasActivePowerup);
+  if(!powerUps.empty()) lastCollectedPowerUp = powerUps.back()->getType();
 
 
   //drawing bg image
@@ -281,45 +291,10 @@ if (levelGen.update()) {
   if (bullet->active) bullet->draw(renderer);
 }
 
-  //UI ELEMENTS (Will be transfered to ui manager later)
+  //this will draw the entire hud
+  ui.drawHUD(bulletManager.bulletsInMag, bulletManager.reloading, player.health, score, lastCollectedPowerUp, levelGen.getLevel(), hasActivePowerup);
 
-  SDL_Color white = {255, 255, 255};    //setting the text color white
 
-  SDL_Surface* labelSurface = TTF_RenderText_Blended(font, "Bullets", white);     //it wwill say bullet on top
-  SDL_Texture* labelTex = SDL_CreateTextureFromSurface(renderer, labelSurface);
-  SDL_Rect labelRect = {10, SCREEN_HEIGHT - 50, labelSurface->w,labelSurface->h};   //the position
-  SDL_RenderCopy(renderer, labelTex, nullptr, &labelRect);
-  SDL_FreeSurface(labelSurface);
-  SDL_DestroyTexture(labelTex);
-
-  std::string bulletStatus = bulletManager.reloading ? "Reloading" : std::to_string(bulletManager.bulletsInMag);    //it will check if bulletmanager says reloading if it does
-  SDL_Surface* statusSurface = TTF_RenderText_Blended(font, bulletStatus.c_str(), white);                           // it will show reloading
-  SDL_Texture* statusTex = SDL_CreateTextureFromSurface(renderer, statusSurface);
-  SDL_Rect statusRect = {10, SCREEN_HEIGHT - 25, statusSurface->w, statusSurface->h};
-  SDL_RenderCopy(renderer, statusTex, nullptr, &statusRect);
-  SDL_FreeSurface(statusSurface);
-  SDL_DestroyTexture(statusTex);
-
-  //show hp
-  std::string hpText = "HP: " + std::to_string(player.health);
-  SDL_Surface* hpSurface = TTF_RenderText_Blended(font, hpText.c_str(), white);
-  SDL_Texture* hpTex = SDL_CreateTextureFromSurface(renderer, hpSurface);
-  SDL_Rect hpRect = { SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, hpSurface->w, hpSurface->h };
-  SDL_RenderCopy(renderer, hpTex, nullptr, &hpRect);
-  SDL_FreeSurface(hpSurface);
-  SDL_DestroyTexture(hpTex);
-
-  //shoow score
-  std::string scoreText = "Score: " + std::to_string(score);
-  SDL_Surface* scoreSurface = TTF_RenderText_Blended(font, scoreText.c_str(), white);
-  SDL_Texture* scoreTex = SDL_CreateTextureFromSurface(renderer, scoreSurface);
-  SDL_Rect scoreRect = { SCREEN_WIDTH / 2 - 50, 10, scoreSurface->w, scoreSurface->h };
-  SDL_RenderCopy(renderer, scoreTex, nullptr, &scoreRect);
-  SDL_FreeSurface(scoreSurface);
-  SDL_DestroyTexture(scoreTex);
-  
-
-  
 
   //showing everything we drew
   SDL_RenderPresent(renderer);
