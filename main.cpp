@@ -126,12 +126,17 @@ if (!enemySurface) {
 
 //loading powerups sprite
 SDL_Surface* powerupSurface = IMG_Load("assets/powerup.png");
-SDL_Texture* powerupTex = SDL_CreateTextureFromSurface(renderer, powerupSurface);
-
-if(!powerupSurface) {
-  std::cerr << "Failed to load powerup image: " << IMG_GetError() << "\n";
+if (!powerupSurface) {
+    std::cerr << "Failed to load powerup image: " << IMG_GetError() << "\n";
+    return 1;
 }
+SDL_Texture* powerupTex = SDL_CreateTextureFromSurface(renderer, powerupSurface);
+SDL_FreeSurface(powerupSurface);
 
+if (!powerupTex) {
+    std::cerr << "Failed to create powerup texture: " << SDL_GetError() << "\n";
+    return 1;
+}
 
 //start background music
 audio.playMusic();
@@ -175,7 +180,7 @@ Uint32 lastPowerUpTime = 0;
 
 //keeeeping track of scooree
 int score = 0;
-
+LevelGenerator levelGen;
 
 //setting up main game loop now
 while (isRunning) {
@@ -193,6 +198,15 @@ while (isRunning) {
   //getting keystate and pass to the player's input
   const Uint8* keystate = SDL_GetKeyboardState(NULL);
   player.handleInput(keystate);
+
+
+  //check for player health
+  if (player.health <= 0) {
+    std::cout << "Game Over!\n";
+    isRunning = false;
+    continue;
+  }
+
 
   bulletManager.update();   //updates bullet manager
   
@@ -239,7 +253,7 @@ if (levelGen.update()) {
   for (auto& pu : powerUps) if (pu -> active) pu->move();       //basically makes the enemy move if it spawns on a powerup
 
   //handling collisions
-  CollisionManager::handleCollisions(player, enemies, bulletManager.bullets,  powerUps, audio, bulletManager, score);
+  CollisionManager::handleCollisions(player, enemies, bulletManager.bullets, enemyBullets,  powerUps, audio, bulletManager, score);
 
 
   //drawing bg image
@@ -250,6 +264,12 @@ if (levelGen.update()) {
 
   //drawing bullets
   bulletManager.draw(renderer);
+
+  //drawing the powerups
+  for (auto& pu : powerUps) {
+    if (pu->active) pu->draw(renderer);
+  }
+
 
   //drawing enemies
   for(auto& enemy : enemies) {
