@@ -7,14 +7,18 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <vector>
+#include <memory>
+
+
 #include "Player.h"
 #include "Bullet.h"
 #include "BulletManager.h"
 #include "Enemy.h"
 #include "AudioManager.h"
 #include "LevelGenerator.h"
-#include <vector>
-#include <memory>
+#include "PowerUp.h"
+#include "CollisionManager.h"
 
 //setting up the screen dimensions
 const int SCREEN_WIDTH = 800;
@@ -120,6 +124,14 @@ if (!enemySurface) {
   return 1;
 }
 
+//loading powerups sprite
+SDL_Surface* powerupSurface = IMG_Load("assets/powerup.png");
+SDL_Texture* powerupTex = SDL_CreateTextureFromSurface(renderer, powerupSurface);
+
+if(!powerupSurface) {
+  std::cerr << "Failed to load powerup image: " << IMG_GetError() << "\n";
+}
+
 
 //start background music
 audio.playMusic();
@@ -156,25 +168,27 @@ std::vector<Enemy> enemies;
 Uint32 lastSpawnTime = 0;
 std::vector<std::unique_ptr<Entity>> enemyBullets;
 
+//setting up the powerups
+std::vector<std::unique_ptr<PowerUp>> powerUps; 
+//Uint32 lastSpawnTime = 0; commented cuz already declared
+Uint32 lastPowerUpTime = 0;
+
+//keeeeping track of scooree
+int score = 0;
 
 
 //setting up main game loop now
 while (isRunning) {
   //poll for any events like clsoing the window or key presses
  
-    while(SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
-          isRunning = false;
-      }
-    
-    if (event.type == SDL_KEYDOWN) {
-    if (event.key.keysym.sym == SDLK_SPACE) {
-    bulletManager.tryFire(player.x, player.y, bulletTex);
-    audio.playFire();     //play fire sfx
+  while (SDL_PollEvent(&event)) {
+    if (event.type == SDL_QUIT) isRunning = false;
+    else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
+        bulletManager.tryFire(player.x, player.y, bulletTex);
+        audio.playFire();
+        }
     }
-  }
 
-  }
 
   //getting keystate and pass to the player's input
   const Uint8* keystate = SDL_GetKeyboardState(NULL);
@@ -213,6 +227,20 @@ if (levelGen.update()) {
     }
 }
 
+  //spawning in the powerups
+  if (currentTime - lastPowerUpTime > 10000) {
+    float x = rand() % (SCREEN_WIDTH - 32);
+    PowerUpType type = static_cast<PowerUpType>(rand() % 3);
+    powerUps.push_back(std::make_unique<PowerUp>(x, -32, 2.0f, powerupTex, type));
+    lastPowerUpTime = currentTime;
+  }
+
+  for (auto& enemy: enemies) if (enemy.active) enemy.move();
+  for (auto& pu : powerUps) if (pu -> active) pu->move();       //basically makes the enemy move if it spawns on a powerup
+
+  //handling collisions
+  CollisionManager::handleCollisions(player, enemies, bulletManager.bullets,  powerUps, audio, bulletManager, score);
+
 
   //drawing bg image
   SDL_RenderCopy(renderer, backgroundTex, nullptr, nullptr);
@@ -233,7 +261,7 @@ if (levelGen.update()) {
   if (bullet->active) bullet->draw(renderer);
 }
 
-  //writting on the bottom left
+  //UI ELEMENTS (Will be transfered to ui manager later)
 
   SDL_Color white = {255, 255, 255};    //setting the text color white
 
@@ -251,6 +279,25 @@ if (levelGen.update()) {
   SDL_RenderCopy(renderer, statusTex, nullptr, &statusRect);
   SDL_FreeSurface(statusSurface);
   SDL_DestroyTexture(statusTex);
+
+  //show hp
+  std::string hpText = "HP: " + std::to_string(player.health);
+  SDL_Surface* hpSurface = TTF_RenderText_Blended(font, hpText.c_str(), white);
+  SDL_Texture* hpTex = SDL_CreateTextureFromSurface(renderer, hpSurface);
+  SDL_Rect hpRect = { SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, hpSurface->w, hpSurface->h };
+  SDL_RenderCopy(renderer, hpTex, nullptr, &hpRect);
+  SDL_FreeSurface(hpSurface);
+  SDL_DestroyTexture(hpTex);
+
+  //shoow score
+  std::string scoreText = "Score: " + std::to_string(score);
+  SDL_Surface* scoreSurface = TTF_RenderText_Blended(font, scoreText.c_str(), white);
+  SDL_Texture* scoreTex = SDL_CreateTextureFromSurface(renderer, scoreSurface);
+  SDL_Rect scoreRect = { SCREEN_WIDTH / 2 - 50, 10, scoreSurface->w, scoreSurface->h };
+  SDL_RenderCopy(renderer, scoreTex, nullptr, &scoreRect);
+  SDL_FreeSurface(scoreSurface);
+  SDL_DestroyTexture(scoreTex);
+  
 
   
 
