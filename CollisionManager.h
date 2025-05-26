@@ -18,6 +18,7 @@ public:
     Player& player,
     std::vector<Enemy>& enemies,
     std::vector<std::unique_ptr<Entity>>& bullets,
+    std::vector<std::unique_ptr<Entity>>& enemyBullets,
     std::vector<std::unique_ptr<PowerUp>>& powerUps,
     AudioManager& audioManager,
     BulletManager& bulletManager,

@@ -11,6 +11,7 @@ void CollisionManager::handleCollisions(
     Player& player,
     std::vector<Enemy>& enemies,
     std::vector<std::unique_ptr<Entity>>& bullets,
+    std::vector<std::unique_ptr<Entity>>& enemyBullets,
     std::vector<std::unique_ptr<PowerUp>>& powerUps,
     AudioManager& audioManager,
     BulletManager& bulletmanager,
@@ -55,6 +56,22 @@ void CollisionManager::handleCollisions(
             ++bulletIt;
         }
     }
+
+    // player collides with enemy
+    for (Enemy& enemy : enemies) {
+        if (!enemy.active) continue;
+
+        if (checkCollision(
+        player.x, player.y, 64, 64,
+        enemy.x, enemy.y, 64, 64
+    )) {
+        player.takeDamage(25);
+        enemy.active = false;
+        audioManager.playHit();
+        score -= 50; // optional penalty
+        }
+    }
+
 
     //powerUps vs. player
     for (auto puIt = powerUps.begin(); puIt != powerUps.end(); ) {
