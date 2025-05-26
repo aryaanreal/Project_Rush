@@ -21,5 +21,5 @@ public:
     void move() override;
     void draw(SDL_Renderer* renderer) override;
 
-    void shoot(std::vector<std::unique_ptr<Entity>>& bullets);
+    void shoot(std::vector<std::unique_ptr<Entity>>& bullets, float playerX, float playerY);
 };

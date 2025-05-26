@@ -27,7 +27,7 @@ Enemy::Enemy(float x, float y, float speed, SDL_Texture* tex, SDL_Texture* bulle
     SDL_RenderCopy(renderer, texture, nullptr, &dst); 
   }
 
-  void Enemy::shoot(std::vector<std::unique_ptr<Entity>>& bullets) {
+  void Enemy::shoot(std::vector<std::unique_ptr<Entity>>& bullets, float playerX, float playerY) {
     shootTimer++; //count frames
 
     if (shootTimer >= shootCooldown) {
@@ -35,7 +35,9 @@ Enemy::Enemy(float x, float y, float speed, SDL_Texture* tex, SDL_Texture* bulle
             x + 32,       //center of enemy
             y + 84,       //just below enemy sprite
             5.0f,         //bullet speed
-            bulletTex     //texture
+            bulletTex,     //texture
+            playerX,
+            playerY
         ));
         shootTimer = 0; //reset after firing
     }
