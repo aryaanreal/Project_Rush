@@ -1,7 +1,7 @@
 #include "AudioManager.h"
 // initialize all sound pointers to nullptr
 AudioManager::AudioManager()
-    : fireSOund(nullptr), hitSound(nullptr), pickupSound(nullptr), bgm(nullptr) {}
+    : fireSound(nullptr), hitSound(nullptr), pickupSound(nullptr), bgm(nullptr) {}
 // free all loaded sound effects and music from memory
  AudioManager::~AudioManager() {
     Mix_FreeChunk(fireSound);
@@ -23,7 +23,7 @@ return fireSound && hitSound && pickupSound && bgm;
 }
 
 //to play the fire sound effect
-void AuidoManager::playFire() {
+void AudioManager::playFire() {
     if (fireSound) Mix_PlayChannel(-1, fireSound, 0);
 }
 
@@ -43,6 +43,6 @@ void AudioManager::playMusic() {
 }
 
 //to stop the bgm
-void AuidoManager::stopMusic() {
+void AudioManager::stopMusic() {
     Mix_HaltMusic();
 }
