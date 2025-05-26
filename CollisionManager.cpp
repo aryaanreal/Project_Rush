@@ -25,7 +25,7 @@ void CollisionManager::handleCollisions(
             if (!enemy.active) continue;
 
             if (checkCollision(
-                (*bulletIt)->x, (*bulletIt)->y, 16, 32,
+                (*bulletIt)->x, (*bulletIt)->y, 32, 32,
                 enemy.x, enemy.y, 64, 64
             )) {
                 audioManager.playHit();
