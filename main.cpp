@@ -12,6 +12,7 @@
 #include "BulletManager.h"
 #include "Enemy.h"
 #include "AudioManager.h"
+#include "LevelGenerator.h"
 #include <vector>
 #include <memory>
 
@@ -187,11 +188,17 @@ while (isRunning) {
     if (bullet->active) bullet->move();
 }
 
+//level up every 2 minutes
+if (levelGen.update()) {
+    std::cout << "Level up! Now at level " << levelGen.getLevel() << std::endl;
+}
+
   //making it so new enemies spawn
   Uint32 currentTime = SDL_GetTicks();
   if (currentTime - lastSpawnTime > 1000) {
     float xPos = rand() % (SCREEN_WIDTH -48);
     enemies.emplace_back(xPos, -48, 2.0f, enemyTex, enemyBulletTex);
+    enemies.back().setShootCooldown(levelGen.getEnemyShootCooldown()); //apply cooldown
     lastSpawnTime = currentTime;
   }
 

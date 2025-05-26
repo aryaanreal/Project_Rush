@@ -42,3 +42,6 @@ Enemy::Enemy(float x, float y, float speed, SDL_Texture* tex, SDL_Texture* bulle
         shootTimer = 0; //reset after firing
     }
 }
+void Enemy::setShootCooldown(int cooldown) {
+    shootCooldown = cooldown;
+}
