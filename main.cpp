@@ -128,6 +128,7 @@ BulletManager bulletManager;  //calling bullet manager
 //calling the enemiess
 std::vector<Enemy> enemies;
 Uint32 lastSpawnTime = 0;
+std::vector<std::unique_ptr<Entity>> enemyBullets;
 
 
 
@@ -153,6 +154,9 @@ while (isRunning) {
   player.handleInput(keystate);
 
   bulletManager.update();   //updates bullet manager
+  for (auto& bullet : enemyBullets) {
+    if (bullet->active) bullet->move();
+}
 
   //making it so new enemies spawn
   Uint32 currentTime = SDL_GetTicks();
@@ -166,6 +170,12 @@ while (isRunning) {
   for (auto& enemy: enemies) {
     if(enemy.active) enemy.move(); 
   }
+
+  for (auto& enemy : enemies) {
+    if (enemy.active) {
+        enemy.shoot(enemyBullets); //enemy fires with cooldown
+    }
+}
 
 
   //drawing bg image
@@ -182,6 +192,10 @@ while (isRunning) {
     if(enemy.active) enemy.draw(renderer);
   }
 
+  //draw enemy bullets 
+  for (auto& bullet : enemyBullets) {
+  if (bullet->active) bullet->draw(renderer);
+}
 
   //writting on the bottom left
 
@@ -197,7 +211,7 @@ while (isRunning) {
   std::string bulletStatus = bulletManager.reloading ? "Reloading" : std::to_string(bulletManager.bulletsInMag);    //it will check if bulletmanager says reloading if it does
   SDL_Surface* statusSurface = TTF_RenderText_Blended(font, bulletStatus.c_str(), white);                           // it will show reloading
   SDL_Texture* statusTex = SDL_CreateTextureFromSurface(renderer, statusSurface);
-  SDL_Rect statusRect = {10, SCREEN_HEIGHT - 25, labelSurface->w,labelSurface->h};
+  SDL_Rect statusRect = {10, SCREEN_HEIGHT - 25, statusSurface->w, statusSurface->h};
   SDL_RenderCopy(renderer, statusTex, nullptr, &statusRect);
   SDL_FreeSurface(statusSurface);
   SDL_DestroyTexture(statusTex);
