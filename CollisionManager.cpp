@@ -9,31 +9,31 @@ static bool checkCollision(float x1, float y1, float w1, float h1,
 
 void CollisionManager::handleCollisions(
     Player& player,
-    std::vector<std::unique_ptr<Enemy>>& enemies,
+    std::vector<Enemy>& enemies,
     std::vector<std::unique_ptr<Entity>>& bullets,
     std::vector<std::unique_ptr<PowerUp>>& powerUps,
     AudioManager& audioManager,
+    BulletManager& bulletmanager,
     int& score
 ) {
     //player bullets vs. enemies
     for (auto bulletIt = bullets.begin(); bulletIt != bullets.end(); ) {
         bool hit = false;
 
-        for (auto enemyIt = enemies.begin(); enemyIt != enemies.end(); ) {
+        for (Enemy& enemy : enemies) {
+            if (!enemy.active) continue;
+
             if (checkCollision(
                 (*bulletIt)->x, (*bulletIt)->y, 16, 32,
-                (*enemyIt)->x, (*enemyIt)->y, 64, 64
+                enemy.x, enemy.y, 64, 64
             )) {
                 audioManager.playHit();
-                enemyIt = enemies.erase(enemyIt);
+                enemy.active = false; 
                 score += 100;
                 hit = true;
                 break;
-            } else {
-                ++enemyIt;
             }
         }
-
         if (hit) {
             bulletIt = bullets.erase(bulletIt);
         } else {
@@ -62,7 +62,7 @@ void CollisionManager::handleCollisions(
             player.x, player.y, 64, 64,
             (*puIt)->x, (*puIt)->y, 32, 32
         )) {
-            player.applyUpgrade((*puIt)->getType());
+            player.applyUpgrade((*puIt)->getType(), bulletmanager);
             audioManager.playPickup();
             puIt = powerUps.erase(puIt);
         } else {
