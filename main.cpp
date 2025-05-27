@@ -20,6 +20,7 @@
 #include "PowerUp.h"
 #include "CollisionManager.h"
 #include "UIManager.h"
+#include "scoremanager.h"
 
 //setting up the screen dimensions
 const int SCREEN_WIDTH = 800;
@@ -182,6 +183,21 @@ while (menuRunning) {
                 selected = (selected == UIManager::MenuOption::Start) ? UIManager::MenuOption::Quit : UIManager::MenuOption::Start;
             if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
                 selected = (selected == UIManager::MenuOption::Quit) ? UIManager::MenuOption::Start : UIManager::MenuOption::Quit;
+            
+            //adding leaderboard
+            if (event.key.keysym.sym == SDLK_l) {
+              auto scores = scoremanager::loadscores("leaderboard.txt");
+              bool showingLeaderboard = true;
+              while (showingLeaderboard) {
+              while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) return 0;
+                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+                  showingLeaderboard = false;
+        }
+        ui.drawleaderboard(scores);
+        SDL_Delay(16);
+    }
+}
 
             if (event.key.keysym.sym == SDLK_RETURN) {
                 if (selected == UIManager::MenuOption::Start)
@@ -221,9 +237,7 @@ int score = 0;
 LevelGenerator levelGen;
 
 //setting up main game loop now
-while (isRunning) {
-  //poll for any events like clsoing the window or key presses
- 
+
 while (isRunning) {
   while (SDL_PollEvent(&event)) {
       if (event.type == SDL_QUIT) isRunning = false;
@@ -262,31 +276,30 @@ while (isRunning) {
   const Uint8* keystate = SDL_GetKeyboardState(NULL);
   player.handleInput(keystate);
 
-  //adding a gameover screen
-  if (player.health <= 0) {
-  UIManager::MenuOption gameOverSelected = UIManager::MenuOption::Start;
-  bool gameOver = true;
-  while (gameOver) {
-    while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) return 0;
-      if (event.type == SDL_KEYDOWN) {
-        if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
-          gameOverSelected = (gameOverSelected == UIManager::MenuOption::Start) ? UIManager::MenuOption::Quit : UIManager::MenuOption::Start;
-        if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
-          gameOverSelected = (gameOverSelected == UIManager::MenuOption::Quit) ? UIManager::MenuOption::Start : UIManager::MenuOption::Quit;
-        if (event.key.keysym.sym == SDLK_RETURN) {
-          if (gameOverSelected == UIManager::MenuOption::Start)
-            gameOver = false;
-          else
-            return 0;
-        }
+ if (player.health <= 0) {
+    ui.drawGameOverScreen(UIManager::MenuOption::Quit);
+    SDL_Delay(1000);
+
+    //Prompt for initials and save score
+    std::string initials = ui.getinitials();
+    scoremanager::savescore("leaderboard.txt", {initials, score});
+
+    //Show leaderboard after saving
+    auto scores = scoremanager::loadscores("leaderboard.txt");
+    bool viewing = true;
+    while (viewing) {
+      while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) return 0;
+        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+          viewing = false;
       }
+      ui.drawleaderboard(scores);
+      SDL_Delay(16);
     }
-    ui.drawGameOverScreen(gameOverSelected);
-    SDL_Delay(16);
+
+    isRunning = false; // stop loop after death
+    break;
   }
-  break;
-}
 
 
 
@@ -394,4 +407,4 @@ SDL_Quit();
 return 0; //exit program
 
   }
-}
+
