@@ -4,10 +4,10 @@ LevelGenerator::LevelGenerator() : currentLevel(1) {
     startTime = SDL_GetTicks();  //record game start time
 }
 
-//check if it's time to level up (every 2 minutes = 120000 ms)
+//check if it's time to level up 
 bool LevelGenerator::update() {
     Uint32 now = SDL_GetTicks();
-    if ((now - startTime) >= 120000) {
+    if ((now - startTime) >= 10000) {
         currentLevel++;      //increase level
         startTime = now;     //reset timer
         return true;         //notify game that level changed
