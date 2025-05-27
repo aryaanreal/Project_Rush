@@ -2,6 +2,8 @@
 #include <SDL_ttf.h>
 #include <SDL.h>
 #include <string>
+#include "scoremanager.h"
+#include <cctype>
 
 UIManager::UIManager(SDL_Renderer* renderer, TTF_Font* font)
     : renderer(renderer), font(font), color({255, 255, 255}) {}   //font coolor
@@ -76,11 +78,63 @@ void UIManager::drawGameOverScreen(MenuOption selected) {
 
   SDL_Color original = color;
   color = (selected == MenuOption::Start ? SDL_Color{255, 255, 0} : original);
-  drawText("Restart", 330, 240);
+  drawText("Entering Leaderboards", 330, 240);
 
   color = (selected == MenuOption::Quit ? SDL_Color{255, 255, 0} : original);
-  drawText("Quit", 340, 290);
+  drawText("Nice Try", 340, 290);
 
   color = original;
   SDL_RenderPresent(renderer);
+}
+
+//leaderboard
+void UIManager::drawleaderboard(const std::vector<scoreentry>& scores) {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+
+  drawText("leaderboard", 300, 50);
+
+  int y = 120;
+  for (const auto& entry : scores) {
+    drawText(entry.initials + " - " + std::to_string(entry.score), 300, y);
+    y += 40;
+  }
+
+  drawText("press esc to return", 270, y + 40);
+  SDL_RenderPresent(renderer);
+}
+
+//getting the initials for the leaderboard
+std::string UIManager::getinitials() {
+  std::string initials = "";
+  SDL_StartTextInput();
+  SDL_Event e;
+  
+  while (initials.length() < 3) {
+    while (SDL_PollEvent(&e)) {
+      if (e.type == SDL_QUIT) return "";
+      if (e.type == SDL_TEXTINPUT) {
+        char inputChar = e.text.text[0];
+        if (std::isalpha(static_cast<unsigned char>(inputChar))) {
+          initials += std::toupper(static_cast<unsigned char>(inputChar));
+        }
+      }
+    }
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    SDL_Color color = {255, 255, 255};
+    std::string display = "Enter Initials: " + initials;
+    SDL_Surface* surface = TTF_RenderText_Solid(font, display.c_str(), color);
+    if (surface) {
+      SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+      SDL_Rect dst = {200, 250, surface->w, surface->h};
+      SDL_RenderCopy(renderer, texture, nullptr, &dst);
+      SDL_FreeSurface(surface);
+      SDL_DestroyTexture(texture);
+    }
+    SDL_RenderPresent(renderer);
+    SDL_Delay(16);
+  }
+  SDL_StopTextInput();
+  return initials;
 }

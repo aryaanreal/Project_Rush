@@ -3,7 +3,9 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <string>
+#include <iostream>
 #include "PowerUp.h"
+#include "scoremanager.h"
 
 class UIManager {
     SDL_Renderer* renderer;
@@ -20,6 +22,8 @@ public:
     enum class PauseOption { Continue, Quit };
     void drawPauseMenu(PauseOption selected);
     void drawGameOverScreen(MenuOption selected);
+    void drawleaderboard(const std::vector<scoreentry>& scores);
+    std::string getinitials();
 
 
     
