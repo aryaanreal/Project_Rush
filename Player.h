@@ -8,7 +8,9 @@
 // defines the Player class, which handles position, movement, and rendering
 class Player : public Entity {
 public:
- 
+     
+     float baseSpeed = 5.0f; //for restoring after temporary boost
+
      SDL_Texture* texture;   //texture used to render the player sprite
      int health = 100;        //player health
 
