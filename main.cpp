@@ -21,6 +21,7 @@
 #include "CollisionManager.h"
 #include "UIManager.h"
 #include "scoremanager.h"
+#include "PlayerUpgradeManager.h"
 
 //setting up the screen dimensions
 const int SCREEN_WIDTH = 800;
@@ -236,6 +237,10 @@ bool hasActivePowerup = false;    //adding new check to see if it actually has a
 int score = 0;
 LevelGenerator levelGen;
 
+//setting up upgrades
+PlayerUpgradeManager upgradeManager;
+
+
 //setting up main game loop now
 
 while (isRunning) {
@@ -314,7 +319,9 @@ while (isRunning) {
 
 //level up every 2 minutes
 if (levelGen.update()) {
-    std::cout << "Level up! Now at level " << levelGen.getLevel() << std::endl;
+    upgradeManager.reset(player, bulletManager); // reset old upgrade
+
+    upgradeManager.showUpgradeMenu(player, bulletManager, renderer, font);
 }
 
   //making it so new enemies spawn
@@ -380,6 +387,8 @@ if (levelGen.update()) {
 
   //this will draw the entire hud
   ui.drawHUD(bulletManager.bulletsInMag, bulletManager.reloading, player.health, score, lastCollectedPowerUp, levelGen.getLevel(), hasActivePowerup);
+  ui.drawWaveUpgrade(upgradeManager.getCurrentUpgrade());
+
 
 
 
