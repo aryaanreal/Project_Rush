@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <string>
 #include "scoremanager.h"
+#include "PlayerUpgradeManager.h"
 #include <cctype>
 
 UIManager::UIManager(SDL_Renderer* renderer, TTF_Font* font)
@@ -138,3 +139,25 @@ std::string UIManager::getinitials() {
   SDL_StopTextInput();
   return initials;
 }
+
+void UIManager::drawWaveUpgrade(WaveUpgrade upgrade) {
+    std::string upgradeText = "Wave Upgrade: ";
+
+    switch (upgrade) {
+        case WaveUpgrade::HealthRefill:
+            upgradeText += "Health Refill";
+            break;
+        case WaveUpgrade::BulletSpeed:
+            upgradeText += "Bullet Speed";
+            break;
+        case WaveUpgrade::PlayerSpeed:
+            upgradeText += "Player Speed";
+            break;
+        default:
+            upgradeText += "None";
+    }
+
+    // draw it safely in the bottom-left corner under HUD
+    drawText(upgradeText, 10, 520);
+}
+

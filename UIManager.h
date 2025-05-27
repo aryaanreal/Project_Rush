@@ -6,6 +6,7 @@
 #include <iostream>
 #include "PowerUp.h"
 #include "scoremanager.h"
+#include "PlayerUpgradeManager.h"
 
 class UIManager {
     SDL_Renderer* renderer;
@@ -24,6 +25,8 @@ public:
     void drawGameOverScreen(MenuOption selected);
     void drawleaderboard(const std::vector<scoreentry>& scores);
     std::string getinitials();
+    void drawWaveUpgrade(WaveUpgrade upgrade);
+
 
 
     
