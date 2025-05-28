@@ -1,4 +1,5 @@
 #include "CollisionManager.h"
+#include <iostream>
 
 //check if two rectangles overlap (simple AABB)
 static bool checkCollision(float x1, float y1, float w1, float h1,
@@ -44,20 +45,21 @@ void CollisionManager::handleCollisions(
         }
     }
 
-    //enemy bullets vs. player
-    for (auto bulletIt = bullets.begin(); bulletIt != bullets.end(); ) {
-        EnemyBullet* eBullet = dynamic_cast<EnemyBullet*>(bulletIt->get());
-        if (eBullet && checkCollision(
-            eBullet->x, eBullet->y, 16, 32,
-            player.x, player.y, 64, 64
-        )) {
-            player.takeDamage(10);
-            audioManager.playHit();
-            bulletIt = bullets.erase(bulletIt);
-        } else {
-            ++bulletIt;
-        }
+    // enemy bullets vs. player
+for (auto bulletIt = enemyBullets.begin(); bulletIt != enemyBullets.end(); ) {
+    EnemyBullet* eBullet = dynamic_cast<EnemyBullet*>(bulletIt->get());
+    if (eBullet && checkCollision(
+        eBullet->x, eBullet->y, 32, 32,  // match draw size
+        player.x, player.y, 64, 64
+    )) {
+        std::cout << "HIT! Enemy bullet hit player at (" << eBullet->x << ", " << eBullet->y << ")\n";
+        player.takeDamage(10);
+        audioManager.playHit();
+        bulletIt = enemyBullets.erase(bulletIt);
+    } else {
+        ++bulletIt;
     }
+}
 
     // player collides with enemy
     for (Enemy& enemy : enemies) {
